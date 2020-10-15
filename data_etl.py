@@ -53,8 +53,6 @@ def load_schema_data(oltp_cur, olap_cur, olap_cnx):
         except sqlconnector.Error as err:
             logger.error('Error %s Couldnt run query %s', err, query[1])
 
-# def load_measure_data(oltp_cur, olap_cur)
-
 def main():
 
     config = configparser.ConfigParser()

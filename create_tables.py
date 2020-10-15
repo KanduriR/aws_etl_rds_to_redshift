@@ -9,6 +9,7 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s: %(name)s: %(funcName)s: %(lineno)d: %(levelname)s: %(message)s')
 file_handler = logging.FileHandler('setting_warehouse.log')
 file_handler.setFormatter(formatter)
+#file_handler.setLevel(logging.INFO)
 
 logger.addHandler(file_handler)
 

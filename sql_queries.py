@@ -21,11 +21,11 @@ create_detailed_order = ("""CREATE TABLE IF NOT EXISTS detailed_order(
     productCode varchar(15) NOT NULL,
     quantityOrdered int NOT NULL,
     tot_price int NOT NULL,
-    days_delay_from_reqDate smallint NOT NULL,
-    num_days_to_ship smallint NOT NULL,
-    CONSTRAINT orders_by_prod_ibfk_1 FOREIGN KEY (customerNumber) REFERENCES customers (customernumber),
-    CONSTRAINT orders_by_prod_ibfk_2 FOREIGN KEY (employeeNumber) REFERENCES employees (employeeNumber),
-    CONSTRAINT orders_by_prod_ibfk_3 FOREIGN KEY (productCode) REFERENCES products (productCode)
+    days_delay_from_reqDate smallint DEFAULT NULL,
+    num_days_to_ship smallint DEFAULT NULL,
+    CONSTRAINT orders_by_prod_ibfk_1 FOREIGN KEY (customerNumber) REFERENCES customer (customernumber),
+    CONSTRAINT orders_by_prod_ibfk_2 FOREIGN KEY (employeeNumber) REFERENCES employee (employeeNumber),
+    CONSTRAINT orders_by_prod_ibfk_3 FOREIGN KEY (productCode) REFERENCES product (productCode)
     )""")
 
 create_employee = ("""CREATE TABLE IF NOT EXISTS employee(
@@ -37,7 +37,7 @@ create_employee = ("""CREATE TABLE IF NOT EXISTS employee(
     officeCode varchar(10) NOT NULL,
     reportsTo int DEFAULT NULL,
     jobTitle varchar(50) NOT NULL,
-    CONSTRAINT employees_ibfk_1 FOREIGN KEY (reportsTo) REFERENCES employees (employeenumber),
+    CONSTRAINT employees_ibfk_1 FOREIGN KEY (reportsTo) REFERENCES employee (employeenumber)
     )""")
 
 
@@ -49,7 +49,7 @@ create_product = ("""CREATE TABLE IF NOT EXISTS product (
     productVendor varchar(50) NOT NULL,
     productDescription varchar(500) NOT NULL,
     buyPrice decimal(10,2) NOT NULL,
-    MSRP decimal(10,2) NOT NULL,
+    MSRP decimal(10,2) NOT NULL
     )""")
 
 create_customer = ("""CREATE TABLE IF NOT EXISTS customer (
@@ -59,13 +59,13 @@ create_customer = ("""CREATE TABLE IF NOT EXISTS customer (
   contactFirstName varchar(50) NOT NULL,
   phone varchar(50) NOT NULL,
   addressLine1 varchar(50) NOT NULL,
-  addressLine2 varchar(50) DEFAULT NULL,e
+  addressLine2 varchar(50) DEFAULT NULL,
   city varchar(50) NOT NULL,
   state varchar(50) DEFAULT NULL,
   postalCode varchar(15) DEFAULT NULL,
   country varchar(50) NOT NULL,
   salesRepEmployeeNumber int DEFAULT NULL,
-  creditLimit decimal(10,2) DEFAULT NULL,
+  creditLimit decimal(10,2) DEFAULT NULL
 )""")
 
 # INSERT TABLE DATA INTO WAREHOUSE
@@ -79,8 +79,10 @@ insert_employee_to_dwh = ("""INSERT INTO employee VALUES (%s, %s, %s, %s, %s, %s
 
 # SELECT TABLE QUERY FROM DATABASE
 
-select_orders_db = ("""SELECT od.orderNumber, orderDate, shippedDate, status AS order_status,
-                            orders.customerNumber, od.productCode, quantityOrdered, (quantityOrdered*priceEach) as tot_value
+select_orders_db = ("""SELECT od.orderNumber, orderDate, shippedDate, requiredDate, status AS order_status,
+                            orders.customerNumber, cust.salesRepEmployeeNumber, od.productCode, quantityOrdered,
+                            (quantityOrdered*priceEach) as tot_price,
+                            (requiredDate-shippedDate) AS days_delay_from_reqDate, (shippedDate-orderDate) AS num_days_to_ship
                         FROM orderdetails AS od
                         JOIN orders ON orders.orderNumber = od.orderNumber
                         JOIN customers cust ON cust.customerNumber = orders.customerNumber
