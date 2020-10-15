@@ -1,5 +1,3 @@
-# loading data from OLAP to OLTP
-
 import configparser
 import logging
 import mysql.connector as sqlconnector

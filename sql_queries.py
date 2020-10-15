@@ -101,4 +101,3 @@ dimension_etl_query = [[select_products_db, insert_product_to_dwh],
                        [select_customers_db, insert_customer_to_dwh],
                        [select_employees_db, insert_employee_to_dwh],
                        [select_orders_db, insert_detailedorder_to_dwh]]
-

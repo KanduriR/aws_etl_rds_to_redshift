@@ -37,10 +37,7 @@ def create_dwh():
         cnx.close()
 
     except psycopg2.OperationalError as err:
-        # if (err.pgcode == psycopg2.errorcodes.ConnectionFailure):
         logger.error("Failed setting connection- %s", err)
-        # else:
-        #    logger.error('Unkown error %s', err)
 
     # connect to the created database
     cnx = psycopg2.connect(host=dwh_host, dbname=olap_db, user=user, password=userkey, port=5439)
