@@ -2,13 +2,14 @@ import configparser
 import logging
 import mysql.connector as sqlconnector
 import psycopg2
-from sql_queries import dimension_etl_query
+import pandas as pd
+from sql_queries import dimension_etl_query, dimension_dict
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s: %(name)s: %(funcName)s: %(lineno)d: %(levelname)s: %(message)s')
-filehandler = logging.FileHandler('setting_warehouse.log')
+filehandler = logging.FileHandler('data_import.log')
 filehandler.setFormatter(formatter)
 
 logger.addHandler(filehandler)
@@ -41,7 +42,7 @@ def connect_to_dwh(host, db, port, user, key):
 
     return conn, cursor
 
-def load_schema_data(oltp_cur, olap_cur, olap_cnx):
+def load_dimension_data(oltp_cur, olap_cur, olap_cnx):
 
     for query in dimension_etl_query:
         oltp_cur.execute(query[0])
@@ -52,6 +53,16 @@ def load_schema_data(oltp_cur, olap_cur, olap_cnx):
             logger.info("Inserted data with: %s", query[1])
         except sqlconnector.Error as err:
             logger.error('Error %s Couldnt run query %s', err, query[1])
+
+
+def read_dimension_ids(query, olap_cur):
+    olap_cur.execute(query)
+    df = pd.DataFrame(olap_cur.fetchall(), columns=columns)
+
+
+def load_measures_data(oltp_cur, olap_cur, olap_cnx):
+    pass
+
 
 def main():
 
@@ -76,7 +87,7 @@ def main():
     olap_cnx, olap_cur = connect_to_dwh(host, olap_db, port, user, key)
 
     # run insert function copying data from one to another
-    load_schema_data(oltp_cur, olap_cur, olap_cnx)
+    load_dimension_data(oltp_cur, olap_cur, olap_cnx)
 
     oltp_cur.close()
     oltp_cnx.close()

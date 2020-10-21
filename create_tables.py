@@ -1,7 +1,7 @@
 import configparser
 import logging
 import psycopg2
-from sql_queries import create_tables_query, drop_query_list
+from sql_queries import create_table_queries, drop_table_queries
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s: %(name)s: %(funcName)s: %(lineno)d: %(levelname)s: %(message)s')
 file_handler = logging.FileHandler('setting_warehouse.log')
 file_handler.setFormatter(formatter)
-#file_handler.setLevel(logging.INFO)
+# file_handler.setLevel(logging.INFO)
 
 logger.addHandler(file_handler)
 
@@ -48,7 +48,7 @@ def create_dwh():
 
 def drop_dwh_tables(conn, cursor):
 
-    for query in drop_query_list:
+    for query in drop_table_queries:
         try:
             cursor.execute(query)
             conn.commit()
@@ -59,7 +59,7 @@ def drop_dwh_tables(conn, cursor):
 
 def create_dwh_tables(conn, cursor):
 
-    for query in create_tables_query:
+    for query in create_table_queries:
         try:
             cursor.execute(query)
             conn.commit()
