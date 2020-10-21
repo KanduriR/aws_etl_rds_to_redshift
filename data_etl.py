@@ -61,7 +61,8 @@ def read_dimension_ids(query, olap_cur):
 
 
 def load_measures_data(oltp_cur, olap_cur, olap_cnx):
-    pass
+    for key, value in dimension_dict.items():
+        read_dimension_ids(value, olap_cur, key)
 
 
 def main():

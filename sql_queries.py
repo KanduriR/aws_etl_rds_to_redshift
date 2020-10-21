@@ -119,4 +119,5 @@ drop_table_queries = [drop_product_table, drop_customer_table, drop_employee_tab
 dimension_etl_query = [[select_products_db, insert_product_to_dwh],
                        [select_customers_db, insert_customer_to_dwh],
                        [select_employees_db, insert_employee_to_dwh]]
+
 dimension_dict = {'prodCode': select_product_ids, 'custNumber': select_customer_ids, 'empNum': select_emp_ids}
