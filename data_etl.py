@@ -3,7 +3,7 @@ import logging
 import mysql.connector as sqlconnector
 import psycopg2
 import pandas as pd
-from sql_queries import dimension_etl_query, dimension_dict
+from sql_queries import dimension_etl_query, select_orders_db
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -55,14 +55,22 @@ def load_dimension_data(oltp_cur, olap_cur, olap_cnx):
             logger.error('Error %s Couldnt run query %s', err, query[1])
 
 
-def read_dimension_ids(query, olap_cur):
+def read_dimension_ids(query, olap_cur, col_name):
     olap_cur.execute(query)
+    columns = ['id'].append(col_name)
     df = pd.DataFrame(olap_cur.fetchall(), columns=columns)
+    return df
 
 
 def load_measures_data(oltp_cur, olap_cur, olap_cnx):
-    for key, value in dimension_dict.items():
-        read_dimension_ids(value, olap_cur, key)
+
+    prod_df = read_dimension_ids("SELECT id,prodCode FROM product", olap_cur, 'prodCode')
+    cust_df = read_dimension_ids("SELECT id,custNumber FROM customer", olap_cur, 'custNum')
+    emp_df = read_dimension_ids("SELECT id,empNumber FROM employee", olap_cur, 'empNum')
+
+    oltp_cur.execute(select_orders_db)
+    columns = ['orderNum', 'orderDt', 'shippedDt', 'reqDt', 'status', 'orderLineNum', 'custNum', 'salesRepEmpNum', 'prodCode', 'quantityOrdered']
+    measures_df = pd.DataFrame(oltp_cur.fetchall(), columns=columns)
 
 
 def main():
